@@ -1,17 +1,18 @@
 # Barceló Guatemala City — Formulario público
 
-Web independiente donde el huésped deja su correo y recibe un cupón.
-Escribe en la base de datos de Supabase mediante un backend seguro.
+## Cambios recientes
+- Bilingüe con detección automática del idioma del dispositivo (+ botón ES/EN).
+- Número de habitación obligatorio y validado contra la lista real (lib/rooms.ts).
+- Un correo puede registrarse hasta 3 veces por mes (no mismo día ni misma semana).
+- Página de política de privacidad en /privacidad.
+- Diseño responsive mejorado para móvil.
 
-## Puesta en marcha
-1. `npm install`
-2. Copia `.env.example` a `.env.local` y pon la URL y la **service_role key**
-   de Supabase (el mismo proyecto que usa la web de consultas).
-3. `npm run dev` → http://localhost:3000
+## IMPORTANTE antes de usar
+1. Ejecuta en Supabase (SQL Editor) el archivo
+   `supabase/migracion-registros-multiples.sql` (permite varios registros por correo).
+2. **Verifica la lista de habitaciones** en `lib/rooms.ts` contra el listado
+   oficial del hotel. Se generó desde las imágenes; revisa que no falte ni sobre ninguna.
 
-## Notas
-- La `service_role key` es secreta y solo se usa en el servidor. Nunca se
-  expone al navegador.
-- El código de cupón lo genera la base de datos automáticamente.
-- La base de datos y su esquema (`schema.sql`) están en el proyecto
-  `barcelo-consultas`. Ejecuta ese esquema una sola vez en Supabase.
+## Variables de entorno (Vercel)
+NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY,
+EMAIL_FROM, NEXT_PUBLIC_SITE_URL
