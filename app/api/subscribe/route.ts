@@ -14,10 +14,6 @@ const schema = z.object({
   lang: z.enum(["es", "en"]).default("es"),
 });
 
-function siteUrl(request: Request) {
-  return process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
-}
-
 // Fecha local de Guatemala (UTC-6) en año/mes/día.
 function gtYMD(d: Date) {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -60,6 +56,7 @@ export async function POST(request: Request) {
   const { email, fullName, roomNumber, consent, lang } = parsed.data;
   const cleanEmail = email.toLowerCase().trim();
   const cleanRoom = roomNumber.trim();
+  const nowIso = new Date().toISOString();
 
   // Validación de habitación en el servidor (no confiar solo en el cliente).
   if (!isValidRoom(cleanRoom)) {
@@ -114,6 +111,8 @@ export async function POST(request: Request) {
   }
 
   // --- Crear registro (cada registro válido genera su propio cupón) ---
+  // El código ahora se envía directo en el correo, así que el registro
+  // queda confirmado de una vez: recibir el correo ya valida la dirección.
   const { data, error } = await supabase
     .from("subscribers")
     .insert({
@@ -121,10 +120,12 @@ export async function POST(request: Request) {
       full_name: fullName?.trim() || null,
       room_number: cleanRoom,
       consent,
-      consent_at: new Date().toISOString(),
+      consent_at: nowIso,
+      confirmed: true,
+      confirmed_at: nowIso,
       source: "web_form",
     })
-    .select("confirm_token")
+    .select("coupon_code")
     .single();
 
   if (error) {
@@ -135,13 +136,12 @@ export async function POST(request: Request) {
     );
   }
 
-  // Enviar el correo con el enlace para reclamar.
-  const claimUrl = `${siteUrl(request)}/confirmar?token=${data.confirm_token}&lang=${lang}`;
+  // Enviar el correo con el código del cupón visible.
   try {
     await sendCouponEmail({
       to: cleanEmail,
       name: fullName?.trim() || null,
-      claimUrl,
+      couponCode: data.coupon_code,
       lang,
     });
   } catch (e) {

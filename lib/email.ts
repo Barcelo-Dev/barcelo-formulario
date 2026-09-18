@@ -3,32 +3,42 @@ import type { Locale } from "./i18n";
 
 const emailCopy = {
   es: {
-    subject: "🎁 Reclama tu cupón de Barceló Guatemala City",
-    preheader: "Tu cupón de bienvenida te está esperando.",
+    subject: "🎁 Tu cupón de Barceló Guatemala City",
+    preheader: "Aquí está tu cupón de bienvenida.",
     eyebrow: "Cupón de bienvenida",
-    heading: "Tu cupón te está esperando",
+    heading: "¡Aquí está tu cupón!",
     greeting: (name?: string | null) => (name ? `Hola ${name},` : "Hola,"),
-    body: "Gracias por registrarte. Solo falta un paso: confirma que este correo es tuyo y activa tu cupón de promoción para tu estancia en Barceló Guatemala City.",
-    button: "Reclamar mi cupón",
-    fallback: "Si el botón no funciona, copia y pega este enlace en tu navegador:",
+    body: "Gracias por registrarte. Este es tu cupón de promoción para tu estancia en Barceló Guatemala City. Preséntalo en recepción o al hacer tu reserva.",
+    codeLabel: "Tu código",
+    note: "Guarda este código. Te enviaremos también futuras ofertas exclusivas.",
     footer1: "Barceló Guatemala City · Ciudad de Guatemala",
-    footer2: "Recibiste este correo porque te registraste en nuestra promoción. Si no fuiste tú, puedes ignorar este mensaje.",
+    footer2:
+      "Recibiste este correo porque te registraste en nuestra promoción. Si no fuiste tú, puedes ignorar este mensaje.",
   },
   en: {
-    subject: "🎁 Claim your Barceló Guatemala City coupon",
-    preheader: "Your welcome coupon is waiting for you.",
+    subject: "🎁 Your Barceló Guatemala City coupon",
+    preheader: "Here is your welcome coupon.",
     eyebrow: "Welcome coupon",
-    heading: "Your coupon is waiting",
+    heading: "Here is your coupon!",
     greeting: (name?: string | null) => (name ? `Hi ${name},` : "Hi,"),
-    body: "Thanks for signing up. Just one step left: confirm this is your email and activate your promotional coupon for your stay at Barceló Guatemala City.",
-    button: "Claim my coupon",
-    fallback: "If the button doesn't work, copy and paste this link into your browser:",
+    body: "Thanks for signing up. This is your promotional coupon for your stay at Barceló Guatemala City. Present it at reception or when making your booking.",
+    codeLabel: "Your code",
+    note: "Save this code. We'll also send you future exclusive offers.",
     footer1: "Barceló Guatemala City · Guatemala City",
-    footer2: "You received this email because you signed up for our promotion. If this wasn't you, you can ignore this message.",
+    footer2:
+      "You received this email because you signed up for our promotion. If this wasn't you, you can ignore this message.",
   },
 } as const;
 
-export function couponEmailHtml({ name, claimUrl, lang = "es" }: { name?: string | null; claimUrl: string; lang?: Locale; }) {
+export function couponEmailHtml({
+  name,
+  couponCode,
+  lang = "es",
+}: {
+  name?: string | null;
+  couponCode: string;
+  lang?: Locale;
+}) {
   const c = emailCopy[lang];
   return `<!DOCTYPE html>
 <html lang="${lang}">
@@ -47,13 +57,16 @@ export function couponEmailHtml({ name, claimUrl, lang = "es" }: { name?: string
           <p style="margin:0 0 14px 0;font-size:16px;line-height:1.6;color:#33474f;">${c.greeting(name)}</p>
           <p style="margin:0 0 28px 0;font-size:16px;line-height:1.6;color:#33474f;">${c.body}</p>
         </td></tr>
-        <tr><td style="padding:0 40px 36px 40px;" align="center">
-          <table role="presentation" cellpadding="0" cellspacing="0"><tr><td bgcolor="#1f7d9c" style="border-radius:10px;">
-            <a href="${claimUrl}" target="_blank" style="display:inline-block;padding:16px 40px;font-family:Helvetica,Arial,sans-serif;font-size:16px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:10px;">${c.button}</a>
-          </td></tr></table>
+        <tr><td style="padding:0 40px 32px 40px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:2px dashed #8e9091;border-radius:12px;background-color:#f6f4ef;">
+            <tr><td style="padding:22px 24px;text-align:center;">
+              <p style="margin:0 0 6px 0;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#8e9091;font-weight:bold;">${c.codeLabel}</p>
+              <p style="margin:0;font-family:'Courier New',Courier,monospace;font-size:32px;font-weight:bold;letter-spacing:3px;color:#14323d;">${couponCode}</p>
+            </td></tr>
+          </table>
         </td></tr>
         <tr><td style="padding:0 40px 36px 40px;font-family:Helvetica,Arial,sans-serif;">
-          <p style="margin:0;font-size:13px;line-height:1.6;color:#8e9091;text-align:center;">${c.fallback}<br /><a href="${claimUrl}" style="color:#1f7d9c;word-break:break-all;">${claimUrl}</a></p>
+          <p style="margin:0;font-size:13px;line-height:1.6;color:#8e9091;text-align:center;">${c.note}</p>
         </td></tr>
         <tr><td style="background-color:#f6f4ef;padding:24px 40px;font-family:Helvetica,Arial,sans-serif;">
           <p style="margin:0 0 4px 0;font-size:12px;line-height:1.6;color:#8e9091;text-align:center;">${c.footer1}</p>
@@ -65,10 +78,25 @@ export function couponEmailHtml({ name, claimUrl, lang = "es" }: { name?: string
 </body></html>`;
 }
 
-export async function sendCouponEmail({ to, name, claimUrl, lang = "es" }: { to: string; name?: string | null; claimUrl: string; lang?: Locale; }) {
+export async function sendCouponEmail({
+  to,
+  name,
+  couponCode,
+  lang = "es",
+}: {
+  to: string;
+  name?: string | null;
+  couponCode: string;
+  lang?: Locale;
+}) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
   if (!apiKey || !from) throw new Error("Faltan RESEND_API_KEY o EMAIL_FROM.");
   const resend = new Resend(apiKey);
-  return resend.emails.send({ from, to, subject: emailCopy[lang].subject, html: couponEmailHtml({ name, claimUrl, lang }) });
+  return resend.emails.send({
+    from,
+    to,
+    subject: emailCopy[lang].subject,
+    html: couponEmailHtml({ name, couponCode, lang }),
+  });
 }

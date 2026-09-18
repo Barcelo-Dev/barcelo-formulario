@@ -71,7 +71,7 @@ export default function SubscribeForm({ lang, t }: { lang: Locale; t: FormT }) {
         <h2 className="mt-5 font-display text-2xl font-bold text-barcelo-ink">{t.successTitle}</h2>
         <p className="mt-2 text-sm leading-relaxed text-barcelo-gray">
           {t.successBodyA} <span className="font-medium text-barcelo-ink">{sentTo}</span>.{" "}
-          {t.successBodyB} <strong>{t.successBodyBtn}</strong> {t.successBodyC}
+          {t.successBodyB}
         </p>
         <p className="mt-4 text-xs text-barcelo-gray">{t.spamNote}</p>
       </div>
