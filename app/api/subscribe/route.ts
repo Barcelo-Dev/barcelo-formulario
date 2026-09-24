@@ -137,12 +137,15 @@ export async function POST(request: Request) {
   }
 
   // Enviar el correo con el código del cupón visible.
+  // baseUrl: para que la imagen del banner cargue con ruta absoluta.
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
   try {
     await sendCouponEmail({
       to: cleanEmail,
       name: fullName?.trim() || null,
       couponCode: data.coupon_code,
       lang,
+      baseUrl,
     });
   } catch (e) {
     console.error("Error al enviar el correo:", e);

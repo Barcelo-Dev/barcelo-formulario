@@ -8,7 +8,7 @@ const emailCopy = {
     eyebrow: "Cupón de bienvenida",
     heading: "¡Aquí está tu cupón!",
     greeting: (name?: string | null) => (name ? `Hola ${name},` : "Hola,"),
-    body: "Gracias por registrarte. Este es tu cupón de promoción para tu estancia en Barceló Guatemala City. Preséntalo en recepción o al hacer tu reserva.",
+    body: "Gracias por registrarte. Este es tu cupón de bienvenida para que lo disfrutes durante tu estancia en Barceló Guatemala City. Solo muestra tu código para canjearlo.",
     codeLabel: "Tu código",
     note: "Guarda este código. Te enviaremos también futuras ofertas exclusivas.",
     footer1: "Barceló Guatemala City · Ciudad de Guatemala",
@@ -21,7 +21,7 @@ const emailCopy = {
     eyebrow: "Welcome coupon",
     heading: "Here is your coupon!",
     greeting: (name?: string | null) => (name ? `Hi ${name},` : "Hi,"),
-    body: "Thanks for signing up. This is your promotional coupon for your stay at Barceló Guatemala City. Present it at reception or when making your booking.",
+    body: "Thanks for signing up. This is your welcome coupon to enjoy during your stay at Barceló Guatemala City. Just show your code to redeem it.",
     codeLabel: "Your code",
     note: "Save this code. We'll also send you future exclusive offers.",
     footer1: "Barceló Guatemala City · Guatemala City",
@@ -34,12 +34,16 @@ export function couponEmailHtml({
   name,
   couponCode,
   lang = "es",
+  baseUrl = "",
 }: {
   name?: string | null;
   couponCode: string;
   lang?: Locale;
+  baseUrl?: string;
 }) {
   const c = emailCopy[lang];
+  // URL absoluta del banner (los correos requieren rutas absolutas para imágenes).
+  const bannerSrc = `${baseUrl.replace(/\/$/, "")}/promo-banner.jpg`;
   return `<!DOCTYPE html>
 <html lang="${lang}">
 <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="color-scheme" content="light" /><title>${c.heading}</title></head>
@@ -58,8 +62,11 @@ export function couponEmailHtml({
           <p style="margin:0 0 28px 0;font-size:16px;line-height:1.6;color:#33474f;">${c.body}</p>
         </td></tr>
         <tr><td style="padding:0 40px 32px 40px;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:2px dashed #8e9091;border-radius:12px;background-color:#f6f4ef;">
-            <tr><td style="padding:22px 24px;text-align:center;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e3e0d8;border-radius:12px;background-color:#ffffff;overflow:hidden;">
+            <tr><td style="padding:0;line-height:0;">
+              <img src="${bannerSrc}" alt="1 bebida en cualquiera de nuestros centros de consumo" width="518" style="display:block;width:100%;height:auto;border:0;" />
+            </td></tr>
+            <tr><td style="padding:22px 24px;text-align:center;background-color:#f6f4ef;border-top:2px dashed #c9c5bb;">
               <p style="margin:0 0 6px 0;font-family:Helvetica,Arial,sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#8e9091;font-weight:bold;">${c.codeLabel}</p>
               <p style="margin:0;font-family:'Courier New',Courier,monospace;font-size:32px;font-weight:bold;letter-spacing:3px;color:#14323d;">${couponCode}</p>
             </td></tr>
@@ -83,11 +90,13 @@ export async function sendCouponEmail({
   name,
   couponCode,
   lang = "es",
+  baseUrl = "",
 }: {
   to: string;
   name?: string | null;
   couponCode: string;
   lang?: Locale;
+  baseUrl?: string;
 }) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
@@ -97,6 +106,6 @@ export async function sendCouponEmail({
     from,
     to,
     subject: emailCopy[lang].subject,
-    html: couponEmailHtml({ name, couponCode, lang }),
+    html: couponEmailHtml({ name, couponCode, lang, baseUrl }),
   });
 }
