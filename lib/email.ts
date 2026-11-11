@@ -9,6 +9,7 @@ const emailCopy = {
     heading: "¡Aquí está tu cupón!",
     greeting: (name?: string | null) => (name ? `Hola ${name},` : "Hola,"),
     body: "Gracias por registrarte. Este es tu cupón de bienvenida para que lo disfrutes durante tu estancia en Barceló Guatemala City. Solo muestra tu código para canjearlo.",
+    restrictions: "* Aplican restricciones.",
     codeLabel: "Tu código",
     validity: "Válido por 1 semana a partir de hoy.",
     note: "Guarda este código. Te enviaremos también futuras ofertas exclusivas.",
@@ -23,6 +24,7 @@ const emailCopy = {
     heading: "Here is your coupon!",
     greeting: (name?: string | null) => (name ? `Hi ${name},` : "Hi,"),
     body: "Thanks for signing up. This is your welcome coupon to enjoy during your stay at Barceló Guatemala City. Just show your code to redeem it.",
+    restrictions: "* Restrictions apply.",
     codeLabel: "Your code",
     validity: "Valid for 1 week from today.",
     note: "Save this code. We'll also send you future exclusive offers.",
@@ -61,7 +63,8 @@ export function couponEmailHtml({
           <p style="margin:0 0 6px 0;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#c99a3f;font-weight:bold;">${c.eyebrow}</p>
           <h1 style="margin:0 0 16px 0;font-family:Georgia,serif;font-size:28px;line-height:1.2;color:#14323d;">${c.heading}</h1>
           <p style="margin:0 0 14px 0;font-size:16px;line-height:1.6;color:#33474f;">${c.greeting(name)}</p>
-          <p style="margin:0 0 28px 0;font-size:16px;line-height:1.6;color:#33474f;">${c.body}</p>
+          <p style="margin:0 0 12px 0;font-size:16px;line-height:1.6;color:#33474f;">${c.body}</p>
+          <p style="margin:0 0 28px 0;font-size:12px;line-height:1.5;color:#8e9091;">${c.restrictions}</p>
         </td></tr>
         <tr><td style="padding:0 40px 32px 40px;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e3e0d8;border-radius:12px;background-color:#ffffff;overflow:hidden;">
